@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>1984</title>
+<style>
+body {
+  padding:0;
+  margin:0;
+  background:#006600;
+}
+canvas {
+  display:block;
+  margin:30px auto 0;
+  border:1px dashed #ccc;
+  background:#000;
+}
+</style>
+
+<script src = "gameElements/F14.js"></script>
+<script src = "gameElements/weapons.js"></script>
+
+<script>
+
+//-----------------------------------------------------------------------------------------------------
+//--------------------------------- I.C.Stars game night project ( 1984 ) -----------------------------
+//---------------------------------	September 5, 2013 -------------------------------------------------
+//-----------------------------------------------------------------------------------------------------
+//		F14 	 					-> Done.
+//		Enemy fighters				-> Work in progress.
+//		weapons 					-> F14 missiles and guns done. Enemy weapons are a work in progress.
+//		Background					-> 
+//		Scoring/F14 status display	-> 
+//		Title screen				-> 
+//		High score screen			->
+//		Background music			->
+
+//GLOBAL VARIABLES.  CONTROLS GAME SPEED, ETC.
+
+var gameSpeed = 5, //How fast paced is the game ??
+
+//Key controls of F14 :
+
+    rightKey = false,
+	leftKey = false,
+	upKey = false,
+	downKey = false,
+	
+//GAME SCREEN HEIGHT AND WIDTH :
+	width = 800,
+	height = 620,
+	animationTimingMax = 20,  //ANIMATION TIMING.
+	
+	
+//F14 settings :
+	defaultLives = 3, //Number of starting lives.
+	defaultRolls = 3, //Number of starting rolls.
+	defaultMissiles = 0, //Number of guided missiles.
+	F14LeftBulletCalib = 5, //Calibrated to correctly show that the left bullet is coming from the left side of F14.
+	F14RightBulletCalib = 60, //Calibrated to correctly show that the right bullet is coming from the right side of F14.
+	
+//Weapons setting :
+	maxWeaponsAtOnce = 51,
+	weaponsTrackerF14 = 0,		//Keep track of F14 Weapons.
+	weaponsTrackerEnemy = 0,	//Keep track of enemy Weapons.
+	generalWeaponsTracker = new Array(),	//Used to cycle through weapons and move the ones that are marked as 'INUSE'
+	weaponsCounter = 0,
+	
+	missileFiringSide =  'L',	//Which side will the missile be fired from ?? Default is the left side.
+	
+//Weapons object :
+	weaponsObj,
+	weaponsArray = new Array(), //To hold the weapons being launched.
+	
+	target_x = 50, target_y = 50, //THESE VARIABLES ARE FOR THE GUIDED MISSILES SHOT FROM THE F14 OR ENEMIES.
+
+//F14 variables :
+	F14; //F14 object.
+	
+
+
+
+//=======================================================================================================
+//=======================================================================================================
+//MAIN GAME ROUTINE STARTS HERE :
+
+function init() {	
+
+	// Set up F14.
+	F14 = new f14Fighter();	
+	F14.setupSounds();
+
+
+	//SETUP THE CANVAS :
+	canvas = document.getElementById('canvas');
+	ctx = canvas.getContext('2d');
+	
+	setInterval(gameLoop, gameSpeed); //MAIN GAME LOOP :
+	
+	//SET UP EITHER KEY COMMUNICATION OR COMMUNICATION BY ANDROID DEVICE.
+	
+	document.addEventListener('keydown', F14.flightControlsDown, false);
+	document.addEventListener('keyup', F14.flightControlsUp, false);
+
+} //END OF INITIALIZATION ROUTINE....
+//=============================================================================================
+//=============================================================================================
+
+function gameLoop() {
+	
+	clearCanvas();
+	
+	//Collision detection function here....
+	
+	//CHECK THE STATE OF THE F14 :
+	
+	//Normal flight
+	if (F14.getState() != 'DST' && F14.getState() != 'FLP' 
+	    && F14.getState() != 'FGN' && F14.getState() != 'FMS')  F14.F14Animation('NRM'); 
+	
+	//Barrel roll
+	if (F14.getState() == 'FLP' && F14.getState() != 'DST') F14.F14Animation('FLP');	
+	
+	//Exploding
+	if (F14.getState() == 'DST') F14.F14Animation('EXP');	
+	
+	//......................................................................................
+	//MOVE WEAPONS PROJECTILES :
+	
+	console.log("WEAPONS ARRAY = "+weaponsArray.length);
+	
+	
+	for (var i = 0; i<weaponsArray.length; i++) {
+	
+		//Check for weapons availability space.  If the location in weapons array comes back with a
+		//status of "AVAIL", remove the object from the array.
+		
+		if (weaponsArray[i].getStatus() == 'AVAIL') { weaponsArray.splice(i, 1); }
+		else weaponsArray[i].move();
+		
+	} //End of for loop.
+		
+} //End of function gameLoop.()
+
+//==============================================================================================
+//AUXILLIARY GAME FUNCTIONS :
+
+//CLEAR THE GAME SCREEN FOR REFRESH.
+function clearCanvas() { ctx.clearRect(0, 0, width, height); }
+
+//Start the game as soon as the everything on the site is loaded.
+window.onload = init;
+</script>
+</head>
+
+<body>
+  <canvas id="canvas" width="800" height="620"></canvas>
+</body>
+</html>
+
+
+
+
