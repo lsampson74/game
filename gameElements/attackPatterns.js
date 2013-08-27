@@ -9,13 +9,13 @@
 function fighterAttackPatterns(chosenPattern, patternPlace) {
 
 	var enemyPattern;
-	
+
 		switch(chosenPattern) {
-		
-			case 1 : { enemyPattern = "T090F200T045MMMM"; }
-		
+
+			case 1 : { enemyPattern = "T090F005T085F005T080F005T075F025T025MMMM"; }
+
 		} //End of switch block.
-		
+
 	if ((patternPlace+4) >= enemyPattern.length) return "D000";
 	else return enemyPattern.substring(patternPlace, patternPlace+4);
 
