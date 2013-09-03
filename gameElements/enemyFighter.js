@@ -5,9 +5,9 @@
 function enemyFighter() {
 
 	var xLoc = 0, yLoc = 0,					//X and Y location of the enemy.
-		enemySpeed = 4,						//Speed of the enemy fighter.
+		enemySpeed = 2,						//Speed of the enemy fighter.
 		enemyType,							//Enemy fighter type.
-		enemyState = 'NRM',					//Enemy state. NRM = Normal, DST = Destroyed, EXP = Exploding
+		enemyState = 'NRM',					//Enemy state. NRM = Normal, DST = Destroyed, EXP = Exploding, FLP = Barrel roll
 		armor = 0,							//Defence against guns only.  Missile hits results in immediate destruction.
 		movementType,						//Movement type.  STA = stationary, NST = Non-stationary.
 		enemyPointValue,					//Points from destroying enemies.
@@ -15,40 +15,42 @@ function enemyFighter() {
 		POWdrop,							//Type of POW drop.  (GUN - Gun upgrades, MIS - Missile upgrade,
 											// DSA - Destroy all enemies on the screen, FLP - Additional flip.
 											// FRI - 2 "friends" to fight alongside of F14.)
-		soundPool = new Array(),			//SOUND POOL ARRAY(1)
-		soundCounterB = 0,					//Machine guns.
-		soundCounterC = 8,					//Missiles.
-		missile,
-		machineGuns,
-		explosion,
+		enemyFighterImage,                  //Sprite of the enemy fighter.
+		missileSoundCounter = 0,			//Stores enemy missile attributes.
+		machineGunSoundCounter = 0,
+		enemyChoice = 1,                    //Choice of enemy used in this attack.
 		attackInstr = 'S',					//ONE LETTER ATTACK INSTRUCTION. Defaults to 'S' which starts the 
 											//attack sequence.
 		iterationEnd = 0,					//End of attack step.
 		iterationCounter = 0,
-		attackPattern,						//JET ATTACK PATTERN.
+		attackPattern = 0,						//JET ATTACK PATTERN.
 		patternPlace = 0,					//Place in attack pattern.
 		attackPatternChoice,				//chosen attack pattern.
+		
+		endAngle = 0,						//Chosen end angle.
+		jetAngle = 0,                       //Current angle of the jet.
 		rads = 0,							//Radians ( used in the move section of this object. Initialize to zero. )
-		placeCounter = 0;					//Number of iterations for enemy move.
-
-	var enemyFighterImage = new Image();
-	enemyFighterImage.src = 'spriteFolder/testEnemy.png';
+		
+		placeCounter = 0,					//Number of iterations for enemy move.
+		arrayLimit = 0,                     //For barrel rolling the enemy.
+		axisCounter = 8;
 		
 	//---------------------------------------------------
 	
 		//Method declaration :
 		//this.animateEnemy = animateEnemy;
 
-		this.setupSounds = setupSounds;
 		this.soundProcessor = soundProcessor;	
 		this.move = move;
+		this.rotateAndRedrawEnemy = rotateAndRedrawEnemy;
 
 		//GETTERS / SETTERS
 		this.getState = getState;
 		this.getArmor = getArmor;
 		this.getPointValue = getPointValue;
 		this.getSeriesPointValue = getSeriesPointValue;
-		this.getPOWDropType = getPOWDropType;
+		this.getPOWDropType = getPOWDropType;		
+		this.getEnemy = getEnemy;
 
 
 		this.setArmor = setArmor;
@@ -59,6 +61,7 @@ function enemyFighter() {
 		this.setState = setState;
 		this.setXY = setXY;
 		this.setAttackPattern = setAttackPattern;
+		this.setEnemyChoice = setEnemyChoice;
 
 		//-------------------------------------------------------------------
 
@@ -70,9 +73,6 @@ function enemyFighter() {
 		attackInstr = attackPattern.substring(0, 1);
 
 		iterationEnd = parseInt(attackPattern.substring(1, 4));
-
-		console.log("ATTACK INSTR = "+attackInstr + " iterationEnd = "+iterationEnd);
-
 
 	} //End of getAttackPattern.		
 
@@ -92,109 +92,180 @@ function enemyFighter() {
 		} //End of if....
 
 		//Keep enemy on this path until the end of the iteration :	
-		else if (attackInstr == 'F' && iterationCounter < iterationEnd) { iterationCounter++; }
+		else if (attackInstr == 'F' && iterationCounter < iterationEnd) { 
 		
-		else if (attackInstr == 'M') { //Fire missile the get next instruction :
+			iterationCounter++; 
+			
+			//THIS BLOCK NOT ONLY TURNS THE JET, BUT ANIMATES THE TURNS AS WELL....
+			//IT UTILIZES THE ITERATION TIMINGS....
+			
+			if (iterationCounter%10 == 0) { 
+				
+				//BANK LEFT
+				if (endAngle > jetAngle) { 
+					if (axisCounter == 12) axisCounter = 12; else axisCounter++; 	
+					jetAngle += 5; //TURN THE JET COUNTER CLOCKWISE
+					rads = (Math.PI/180)*jetAngle;
+				} //End of inner if....
+				
+				//BANK RIGHT
+				if (endAngle < jetAngle) {
+					if (axisCounter == 4) axisCounter = 4; else axisCounter--;
+					jetAngle -= 5; //TURN THE JET CLOCKWISE
+					rads = (Math.PI/180)*jetAngle;
+				} //End of inner if....
+
+				//STRAIGHT AHEAD
+				if (endAngle == jetAngle) {
+					if (axisCounter > 8) axisCounter--;
+					if (axisCounter < 8) axisCounter++;
+					
+
+					
+				} //End of inner if....
+			
+			} //End of outer if....
+			
+			//,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+			
+		} //End of else block....
 		
-		//write the fire missile part here....
+		//............................................................................................
+		
+		else if (attackInstr == 'M') { //Fire missile then get next instruction :
+		
+			weaponsArray.push(new weaponsObject());
+			weaponsArray[weaponsArray.length-1].launch('EMS','', xLoc, yLoc);		
+			soundProcessor('MSL');
+			
 			patternPlace += 4;
 			programAttackPattern(attackPatternChoice);
 		
 		} //End of if....
 		
+		//.............................................................................................
+		
+		//Turn or Bank to a specific angle.		
 		else if (attackInstr == 'T') { //Turn the enemy by x degrees then get next instruction :
 
 			//In this case, we use iterationEnd as a place to specify the degree amount :
-			rads = (Math.PI/180)*iterationEnd;
+			endAngle = iterationEnd;
+			
+			//jetAngle = iterationEnd;
 			patternPlace += 4;
 			programAttackPattern(attackPatternChoice);			
 		
 		} //End of if....
 		
+		//...................................................................................................
+		
+		//Initial attack angle. Also turns the enemy by x degrees.
+		else if (attackInstr == 'I') { //Turn the enemy by x degrees then get next instruction :
+
+			//In this case, we use iterationEnd as a place to specify the degree amount :
+			rads = (Math.PI/180)*iterationEnd;
+			patternPlace += 4;
+			jetAngle = iterationEnd; //Make sure that jetAngle knows what iterationEnd is doing here....
+			programAttackPattern(attackPatternChoice);			
+			
+		} //End of if....
+		
+		//.................................................................................................
+		//Flip fighter. Also makes the enemy temporarily invulnerable to bullets or missiles.
+		
+		else if (attackInstr == 'R') { //Enemy fighter barrel roll :
+			
+			enemyState = 'FLP'; 
+			
+			//ITERATION THROUGH THE FLIP.  SOMETHING LIKE 40 WILL BE A COMPLETE ROLL.
+			if (iterationCounter%4 == 0) { if (axisCounter == arrayLimit-1) axisCounter = 0; else axisCounter++; }
+			iterationCounter++;
+		
+			if (iterationCounter >= iterationEnd) { patternPlace += 4; enemyState = 'NRM'; programAttackPattern(attackPatternChoice); }
+		
+		} //End of else....
+
+		//.................................................................................................
+		
 		//Begin the attack sequence :
-		else if (attackInstr == 'S') { programAttackPattern(attackPatternChoice, patternPlace); }
+		//else if (attackInstr == 'S') { programAttackPattern(attackPatternChoice, patternPlace); }
+		else if (attackInstr == 'S') { patternPlace += 4; endAngle = 0; jetAngle = 0; 
+									   programAttackPattern(attackPatternChoice, patternPlace); }
+		
+		//End attack sequence if not already destroyed and remove the the array :
+		else if (attackInstr == 'D') { enemyState = 'DST'; }
 		
 		xLoc += Math.cos(rads)*enemySpeed;
 		yLoc += Math.sin(rads)*enemySpeed;
-
-		ctx.drawImage(enemyFighterImage, xLoc, yLoc);		
+		
+		//Retrieve whatever enemy is going to be used in the attack :
+		getEnemy(enemyChoice);
+		
+		//Rotate and redraw the enemy :
+		rotateAndRedrawEnemy(rads);		
 
 	} //End of function.
 
 		//-------------------------------------------------------------------
 
-	function setupSounds() {
-
-//		(1)	SOUND POOL ARRAY IS ARRANGED AS FOLLOWS :
-
-		//SET UP MACHINE GUN FIRE :
-		for (var i = 0; i<6; i++) {
-
-			machineGun = new Audio("soundFolder/F14FiringGuns.mp3");
-			machineGun.volume = .7;
-			machineGun.load();
-			soundPool[i] = machineGun;
-
-		} //END OF LOOP.
-
-		//SET UP MISSILE FIRE :
-		for (var i = 8; i<15; i++) {
-
-			missile = new Audio("soundFolder/F14FiringMissiles.mp3");
-			missile.volume = .7;
-			missile.load();
-			soundPool[i] = missile;
-
-		} //END OF LOOP.
-
-		//SET UP EXPLOSION SOUND :
-
-		explosion = new Audio("");
-		explosion.volume = .7;
-		explosion.load();
-		soundPool[16] = explosion;
-
-	} //End of function.
-
-	//---------------------------------------------------------
-	//Process the sounds :
-	//MIS = missile firing.
-	//GUN = machine gun firing.
-	//EXP = explosion	
+	
 
 	function soundProcessor(typeOfSound) {
 
 		//GUNS FIRING		  
 		if (typeOfSound == 'GUN') {
-			soundCounterB++;
-
-			if (soundCounterB == 7) { soundCounterB = 0; }
-			soundPool[soundCounterB].play();
+		
+			machineGunSoundPool[machineGunSoundCounter].play();
+			
+			if (machineGunSoundCounter == 6) { machineGunSoundCounter = 0; }
+			else machineGunSoundCounter++;			
 
 		} //END OF IF....
 
 		//MISSILE FIRING
 		if (typeOfSound == 'MSL') {
-			soundCounterC++;
+		
+			if (missileSoundCounter == 9) { missileSoundCounter = 0; }
+			else missileSoundCounter++;		
 
-			if (soundCounterC == 15) { soundCounterC = 8; }
-			soundPool[soundCounterC].play();
-
+			missileSoundPool[missileSoundCounter].play();
+			
 		} //END OF IF....		
 
-		//F14 EXPLODING
-		if (typeOfSound == 'EXP') {
-
-			soundPool[16].volume = 0;
-		    soundPool[16].currentTime = 0;
-
-			soundPool[16].play();
-
-		} //END OF IF....
 
 	} //End of method soundProcessor.
 
+//--------------------------------------------------------------------------
 
+	function rotateAndRedrawEnemy(radians) {
+
+	// Will have to (very) temporarily rotate the entire canvas and then restore it.
+		
+		ctx.save();
+
+		xLoc += Math.cos(radians)*enemySpeed;
+		yLoc += Math.sin(radians)*enemySpeed;
+		
+		ctx.translate(xLoc, yLoc);
+		ctx.rotate(radians);
+		ctx.drawImage(enemyFighterImage, 0, 0);		
+			
+		ctx.restore();
+	
+	
+	} //End of function....
+	
+//Retrieve enemy : Here are the available enemies :
+
+	function getEnemy(enemy) {
+	
+		switch (enemy) {
+		
+			case 1 : { enemyFighterImage = enemyMig01Sprites[axisCounter]; arrayLimit = enemyMig01Sprites.length; }
+		
+		} //End of case block....
+		
+	} //End of function....
 //--------------------------------------------------------------------------
 //Getter and setter methods.
 
@@ -204,7 +275,7 @@ function enemyFighter() {
 	function getPointValue() { return enemyPointValue; }
 	function getSeriesPointValue() { return seriesEnemyPointValue; }
 	function getPOWDropType() { return POWDrop; }
-
+	
 	//SETTER FUNCTIONS :
 	function setXY(locationX, locationY) { xLoc = locationX; yLoc = locationY; }
 	function setState(state) { enemyState = state; }
@@ -214,6 +285,7 @@ function enemyFighter() {
 	function setSeriesPointValue(seriesPV) { seriesEnemyPointValue = seriesPV; }
 	function setPOWdrop(POWDropType) { POWDrop = powDropType; }
 	function setAttackPattern(pattern) { attackPatternChoice = pattern; }
+	function setEnemyChoice(selection) { enemyChoice = selection; }
 
 } //End of enemyFighter.
 

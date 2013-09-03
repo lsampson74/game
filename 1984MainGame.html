@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <title>1984</title>
+
 <style>
 body {
   padding:0;
@@ -16,9 +17,15 @@ canvas {
   background:#000;
 }
 </style>
-
+</head>
+<script src = "gameElements/gameSounds.js"></script>
+<script src = "gameElements/sprites.js"></script>
+<script src = "gameElements/attackPatterns.js"></script>
 <script src = "gameElements/F14.js"></script>
 <script src = "gameElements/weapons.js"></script>
+<script src = "gameElements/enemyFighter.js"></script>
+<script src = "gameElements/backgrounds.js"></script>
+
 
 <script>
 
@@ -27,11 +34,11 @@ canvas {
 //---------------------------------	September 5, 2013 -------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
 //		F14 	 					-> Done.
-//		Enemy fighters				-> Work in progress.
+//		Enemy fighters				-> Done.
 //		weapons 					-> F14 missiles and guns done. Enemy weapons are a work in progress.
 //		Background					-> 
 //		Scoring/F14 status display	-> 
-//		Title screen				-> 
+//		Title screen				-> Done
 //		High score screen			->
 //		Background music			->
 
@@ -49,8 +56,9 @@ var gameSpeed = 5, //How fast paced is the game ??
 //GAME SCREEN HEIGHT AND WIDTH :
 	width = 800,
 	height = 620,
-	animationTimingMax = 20,  //ANIMATION TIMING.
-	
+	animationTimingMax = 20,  	//ANIMATION TIMING.
+	mainGameTimer = 0,			//Game timer.
+	timingBetweenCuts = 25,
 	
 //F14 settings :
 	defaultLives = 3, //Number of starting lives.
@@ -59,11 +67,10 @@ var gameSpeed = 5, //How fast paced is the game ??
 	F14LeftBulletCalib = 5, //Calibrated to correctly show that the left bullet is coming from the left side of F14.
 	F14RightBulletCalib = 60, //Calibrated to correctly show that the right bullet is coming from the right side of F14.
 	
-//Weapons setting :
+//Weapons setting : PROBABLY CAN DELETE THIS BLOCK.... weaponsArray does all of the below.
 	maxWeaponsAtOnce = 51,
 	weaponsTrackerF14 = 0,		//Keep track of F14 Weapons.
 	weaponsTrackerEnemy = 0,	//Keep track of enemy Weapons.
-	generalWeaponsTracker = new Array(),	//Used to cycle through weapons and move the ones that are marked as 'INUSE'
 	weaponsCounter = 0,
 	
 	missileFiringSide =  'L',	//Which side will the missile be fired from ?? Default is the left side.
@@ -72,15 +79,56 @@ var gameSpeed = 5, //How fast paced is the game ??
 	weaponsObj,
 	weaponsArray = new Array(), //To hold the weapons being launched.
 	
-	target_x = 50, target_y = 50, //THESE VARIABLES ARE FOR THE GUIDED MISSILES SHOT FROM THE F14 OR ENEMIES.
+//Enemies array :
+	enemyArray = new Array(), //To hold the various enemies that are attacking....
 
 //F14 variables :
-	F14; //F14 object.
+	F14, //F14 object.
 	
+	
+//Auxiliary game variables :
+	mainGameTiming = 0, //Overall game timing :	
+	
+//Main game stage breakdown :
+// Title screen.
+// Top high scores
+// Game demo ( if time will allow. )
 
-
-
+	gameStage = 0,	//Stage							
+	sortie = 0,		//Attack levels
+	
+	mainGameTimer = 0,
+	
+	soundCounter = 0, //Sounds that are loaded.
+	totalSounds = 43, //Total sounds needed for this game.	
+	gameState = 'READY', //State of the game. READY = ready to play. NOTREADY = not ready, still loading items.	INPLAY = Game is currently being played.
+							//INTRO = Stage started, OUTRO = End of stage, 
 //=======================================================================================================
+//SET UP THE SCORE VARIABLES :
+
+	player1Score = 0,
+	highScore = 40000,
+	scoreHonorNameArray = ["ACE", "GUN", "F14", "MIG", "FLY"],
+	scoreHonorNumberArray = [40000, 35000, 30000, 25000, 20000],
+//TITLE SCREEN :
+	oneFound = false,
+	nineFound = false,
+	eightFound = false,
+	fourFound = false,
+	textFlash = 'on',
+//USED TO GENERATE ENEMIES :
+
+	stageStringArray = new Array(), //Break down stage level. 
+	attackSetString = new Array(), 
+	commandSet = new Array(),
+	splitCommand = new Array(), //Lowest level.
+		
+	stageDone = false, //END OF STAGE INDICATOR.
+
+//SCREEN VARIABLES :
+
+	screenDisplay = 'TITLE';
+	
 //=======================================================================================================
 //MAIN GAME ROUTINE STARTS HERE :
 
@@ -88,9 +136,15 @@ function init() {
 
 	// Set up F14.
 	F14 = new f14Fighter();	
-	F14.setupSounds();
 
-
+	/*HERE IS HOW TO SET UP AN ENEMY FIGHTER : COMMENT AFTER TESTING
+	enemyFighterJetA = new enemyFighter(); //1.) Call the object
+	enemyFighterJetA.setEnemyChoice(1); //2.) Set the type of jet to be used in attack
+	enemyFighterJetA.setAttackPattern(1); //3.) Set the attack pattern.
+	enemyFighterJetA.setXY(30, -100); //4.) Set the X and Y coordinates of the beginning of the attack.
+	//ENEMY JET IS NOW READY TO FIGHT....
+*/
+	//-------------------------------------------------
 	//SETUP THE CANVAS :
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
@@ -101,6 +155,9 @@ function init() {
 	
 	document.addEventListener('keydown', F14.flightControlsDown, false);
 	document.addEventListener('keyup', F14.flightControlsUp, false);
+	
+	//INITIATE THE GAME BY PRESSING ENTER :
+	document.addEventListener('keypress', function(evnt) { if (evnt.keyCode == 13) gameState = 'INPLAY'; }, false);
 
 } //END OF INITIALIZATION ROUTINE....
 //=============================================================================================
@@ -108,38 +165,73 @@ function init() {
 
 function gameLoop() {
 	
-	clearCanvas();
+	clearCanvas(); //KEEP THE CANVAS CLEAN
+	if (mainGameTimer >= 40000) mainGameTimer = 1; else mainGameTimer++; //Start and increment the timing counter....
+
 	
-	//Collision detection function here....
-	
-	//CHECK THE STATE OF THE F14 :
-	
-	//Normal flight
-	if (F14.getState() != 'DST' && F14.getState() != 'FLP' 
-	    && F14.getState() != 'FGN' && F14.getState() != 'FMS')  F14.F14Animation('NRM'); 
-	
-	//Barrel roll
-	if (F14.getState() == 'FLP' && F14.getState() != 'DST') F14.F14Animation('FLP');	
-	
-	//Exploding
-	if (F14.getState() == 'DST') F14.F14Animation('EXP');	
-	
-	//......................................................................................
-	//MOVE WEAPONS PROJECTILES :
-	
-	console.log("WEAPONS ARRAY = "+weaponsArray.length);
-	
-	
-	for (var i = 0; i<weaponsArray.length; i++) {
-	
-		//Check for weapons availability space.  If the location in weapons array comes back with a
-		//status of "AVAIL", remove the object from the array.
+    if (gameState == 'READY') {
+		if (mainGameTimer%2000 == 0) screenDisplay = 'TITLE';  		
+		if (mainGameTimer%6000 == 0) screenDisplay = 'HIGHSCORE'; 
+		if (screenDisplay == 'TITLE') { gameTitle(); }
+		else if (screenDisplay == 'HIGHSCORE') { gameHighScores(); }
 		
-		if (weaponsArray[i].getStatus() == 'AVAIL') { weaponsArray.splice(i, 1); }
-		else weaponsArray[i].move();
+	} //END OF IF BLOCK....
+	
 		
-	} //End of for loop.
+//.....................................GAME PLAY AREA............................................
+	//...........................................................................................	
+	//CHECK TO SEE IF THE GAME IS BEING PLAYED.
+	if (gameState == 'INPLAY') {
+	
+		//CHECK THE STATE OF THE F14 :
+		//Normal flight
+		if (F14.getState() != 'DST' && F14.getState() != 'FLP' 
+			&& F14.getState() != 'FGN' && F14.getState() != 'FMS')  F14.F14Animation('NRM'); 
+	
+		//Barrel roll
+		if (F14.getState() == 'FLP' && F14.getState() != 'DST') F14.F14Animation('FLP');	
+	
+		//Exploding
+		if (F14.getState() == 'DST') F14.F14Animation('EXP');	
 		
+		//......................................................................................
+		//GET ENEMIES AND STRATEGIES AND ATTACK F14 :
+		
+		getStage(gameStage);
+		
+		//......................................................................................
+		//MOVE ENEMIES
+
+		for (var i = 0; i<enemyArray.length; i++) {
+	
+			//Check for weapons availability space.  If the location in weapons array comes back with a
+			//status of "AVAIL", remove the object from the array.
+		
+			if (enemyArray[i].getState() == 'DST') { enemyArray.splice(i, 1); }
+			else enemyArray[i].move();
+		
+		} //End of for loop.
+		
+		//......................................................................................
+		//MOVE WEAPONS PROJECTILES :
+	
+		for (var i = 0; i<weaponsArray.length; i++) {
+	
+			//Check for weapons availability space.  If the location in weapons array comes back with a
+			//status of "AVAIL", remove the object from the array.
+		
+			if (weaponsArray[i].getStatus() == 'AVAIL') { weaponsArray.splice(i, 1); }
+			else weaponsArray[i].move();
+		
+		} //End of for loop.
+	
+		//Collision detection function here....
+		collisionDetection();
+		
+	} //End of if....
+//.......................................................
+
+	
 } //End of function gameLoop.()
 
 //==============================================================================================
@@ -147,6 +239,90 @@ function gameLoop() {
 
 //CLEAR THE GAME SCREEN FOR REFRESH.
 function clearCanvas() { ctx.clearRect(0, 0, width, height); }
+
+//LOOK FOR ANY HITS OF THE ENEMIES OR THE F14 FIGHTER.  THE ENEMY POINT VALUES ARE SET HERE TOO....
+function collisionDetection() {
+
+} //End of function collisionDetection.
+
+//HERE ARE THE OTHER GAME SCREENS :
+
+function gameTitle() {
+
+	//Go through random numbers until a certain time, then display the number that supposed to be there....
+	//Based on main game timer : Make it look like something off of the movie War Games.
+	randomNumber = Math.floor((Math.random()*9));	
+	if (mainGameTimer%225 == 0) { ctx.drawImage(titleNumberSprites[1], 20, 150); oneFound = true; }
+	else if (!oneFound) ctx.drawImage(titleNumberSprites[randomNumber], 20, 150); 
+
+	randomNumber = Math.floor((Math.random()*9));	
+	if (mainGameTimer%425 == 0) { ctx.drawImage(titleNumberSprites[9], 220, 150); nineFound = true; }
+	else if (!nineFound) ctx.drawImage(titleNumberSprites[randomNumber], 220, 150); 
+	
+	randomNumber = Math.floor((Math.random()*9));
+	if (mainGameTimer%625 == 0) { ctx.drawImage(titleNumberSprites[8], 420, 150); eightFound = true; }
+	else if (!eightFound) ctx.drawImage(titleNumberSprites[randomNumber], 420, 150); 
+	
+	randomNumber = Math.floor((Math.random()*9));
+	if (mainGameTimer%825 == 0) { ctx.drawImage(titleNumberSprites[4], 620, 150); fourFound = true; }
+	else if (!fourFound) ctx.drawImage(titleNumberSprites[randomNumber], 620, 150); 
+	
+	if (oneFound) ctx.drawImage(titleNumberSprites[1], 20, 150);
+	if (nineFound) ctx.drawImage(titleNumberSprites[9], 220, 150);
+	if (eightFound) ctx.drawImage(titleNumberSprites[8], 420, 150);
+	if (fourFound) ctx.drawImage(titleNumberSprites[4], 620, 150);
+	
+	//SHOW THE PRESS START PROMPT AND THE FLASH IT.
+	if (oneFound && nineFound && eightFound && fourFound) { 
+			ctx.font='20px Tahoma';
+			
+			if (textFlash == 'on') { ctx.fillStyle = 'red'; } 
+			else { ctx.fillStyle = 'black'; }
+			
+			if (mainGameTimer%150 == 0) { if (textFlash == 'on') textFlash = 'off'; else textFlash = 'on'; }
+						
+			ctx.fillText("PRESS <ENTER>", 340, 450);
+	} //End of if block....
+	
+} //End of function gameTitle.
+
+function gameHighScores() {
+
+	//Once control gets here, it has to reset the variables that animate the title screen :
+	oneFound = false; nineFound = false; eightFound = false; fourFound = false;
+
+	ctx.font='70px Tahoma Bold';
+	ctx.fillStyle = 'blue';
+	ctx.fillText("TOP GUNNERS :", 140, 200);
+	
+	//SHOW THE TOP GUNNERS !!!!
+	for (var highScoreCounter = 0; highScoreCounter <= scoreHonorNameArray.length-1; highScoreCounter++) {
+	
+	  ctx.font='40px Tahoma Bold';
+	  ctx.fillStyle = 'green';
+	
+	  ctx.fillText(scoreHonorNameArray[highScoreCounter], 250, 270+(50*highScoreCounter));
+	  ctx.fillText(scoreHonorNumberArray[highScoreCounter], 450, 270+(50*highScoreCounter));
+	
+	  ctx.font='20px Tahoma';
+	  ctx.fillStyle = 'green';
+	  
+	  ctx.fillText("HIGH ", 340, 30);
+	  
+	  ctx.fillStyle = 'white';
+	  ctx.fillText(highScore, 400, 30);
+	
+	} //End of loop.
+	
+			if (textFlash == 'on') { ctx.fillStyle = 'red'; } 
+			else { ctx.fillStyle = 'black'; }
+			
+			if (mainGameTimer%150 == 0) { if (textFlash == 'on') textFlash = 'off'; else textFlash = 'on'; }
+						
+			ctx.fillText("PRESS <ENTER>", 340, 550);
+	
+} //End of function gameHighScores.
+
 
 //Start the game as soon as the everything on the site is loaded.
 window.onload = init;
