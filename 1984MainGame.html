@@ -166,12 +166,12 @@ function init() {
 function gameLoop() {
 	
 	clearCanvas(); //KEEP THE CANVAS CLEAN
-	if (mainGameTimer >= 40000) mainGameTimer = 1; else mainGameTimer++; //Start and increment the timing counter....
+	if (mainGameTimer >= 25000) mainGameTimer = 1; else mainGameTimer++; //Start and increment the timing counter....
 
 	
     if (gameState == 'READY') {
-		if (mainGameTimer%2000 == 0) screenDisplay = 'TITLE';  		
-		if (mainGameTimer%6000 == 0) screenDisplay = 'HIGHSCORE'; 
+		if (mainGameTimer%1500 == 0) screenDisplay = 'TITLE';  		
+		if (mainGameTimer%3000 == 0) screenDisplay = 'HIGHSCORE'; 
 		if (screenDisplay == 'TITLE') { gameTitle(); }
 		else if (screenDisplay == 'HIGHSCORE') { gameHighScores(); }
 		

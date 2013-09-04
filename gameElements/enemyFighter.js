@@ -261,7 +261,8 @@ function enemyFighter() {
 	
 		switch (enemy) {
 		
-			case 1 : { enemyFighterImage = enemyMig01Sprites[axisCounter]; arrayLimit = enemyMig01Sprites.length; }
+			case 1 : { enemyFighterImage = enemyMig01Sprites[axisCounter]; arrayLimit = enemyMig01Sprites.length; break; }
+			case 2 : { enemyFighterImage = enemyMigPowSprites[axisCounter]; arrayLimit = enemyMigPowSprites.length; break; }
 		
 		} //End of case block....
 		

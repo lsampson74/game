@@ -43,16 +43,16 @@ enemyMissileImageLocs = "spriteFolder/weapons/enemyMissile.png",
 					  
 //ENEMY 02 SPRITE FILES :
 
- enemyImageLocs02 = ["spriteFolder/enemySprites/mig02powerUp/enemyMigBlue01.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue02.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue03.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue04.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue05.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue06.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue07.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue08.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue09.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue10.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue11.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue12.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue13.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue14.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue15.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue16.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue17.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue18.png",
-					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlue19.png"],
+ enemyImageLocs02 = ["spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN09.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN08.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN07.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN06.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN05.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN04.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN03.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN02.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueN01.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlue00.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP01.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP02.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP03.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP04.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP05.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP06.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP07.png","spriteFolder/enemySprites/mig02powerUp/enemyMigBlueP08.png",
+					  "spriteFolder/enemySprites/mig02powerUp/enemyMigBlueU00.png"],
 					  
 //ENEMY 03 SPRITE FILES :
 
@@ -111,6 +111,7 @@ enemyMissileImageLocs = "spriteFolder/weapons/enemyMissile.png",
 
 F14Sprites = new Array();
 enemyMig01Sprites = new Array();
+enemyMigPowSprites = new Array();
 stage1BossSprites = new Array();
 
 
@@ -127,6 +128,13 @@ for (var counter = 0; counter <= enemyImageLocs01.length-1; counter++) {
 	enemyMig01Sprites[counter].src = enemyImageLocs01[counter];
 
 } //END OF ENEMY MIG 01 INITIALIZER....
+
+for (var counter = 0; counter <= enemyImageLocs02.length-1; counter++) {
+
+	enemyMigPowSprites[counter] = new Image();
+	enemyMigPowSprites[counter].src = enemyImageLocs02[counter];
+
+} //END OF ENEMY POW INITIALIZER....
 
 for (var counter = 0; counter < stage01BossImageLocs.length-1; counter++) {
 
