@@ -171,4 +171,21 @@ F14MissileImage = new Image();
 F14MissileImage.src = F14MissileImageLocs;
 	
 enemyMissileImage = new Image();
-enemyMissileImage.src = enemyMissileImageLocs;					  
+enemyMissileImage.src = enemyMissileImageLocs;
+
+//..............................................................................................		
+
+//THIS IS NEEDED TO MAKE SURE THAT THE IMAGES ADJUST TO THE DIFFERENT SCREEN SIZES :
+
+function adjustSize(imageParam, heightOrWidth) {
+
+	var adjustedParameter = 0;	
+	
+	if (heightOrWidth == 'w') adjustedParameter = widthRatio*imageParam.width;
+	else if (heightOrWidth == 'h') adjustedParameter = heightRatio*imageParam.height;
+	
+	console.log("adjustedParameter "+adjustedParameter);
+	
+	return Math.floor(adjustedParameter);
+
+} //End of function.				  

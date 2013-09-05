@@ -15,6 +15,7 @@ canvas {
   margin:30px auto 0;
   border:1px dashed #ccc;
   background:#000;
+  
 }
 </style>
 </head>
@@ -56,6 +57,10 @@ var gameSpeed = 5, //How fast paced is the game ??
 //GAME SCREEN HEIGHT AND WIDTH :
 	width = 800,
 	height = 620,
+	heightRatio = 0,
+	widthRatio = 0,
+	fontSizeRatio = 0,
+	fontAdjustedSize = 0,
 	animationTimingMax = 20,  	//ANIMATION TIMING.
 	mainGameTimer = 0,			//Game timer.
 	timingBetweenCuts = 25,
@@ -149,6 +154,7 @@ function init() {
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
 	
+	
 	setInterval(gameLoop, gameSpeed); //MAIN GAME LOOP :
 	
 	//SET UP EITHER KEY COMMUNICATION OR COMMUNICATION BY ANDROID DEVICE.
@@ -159,6 +165,9 @@ function init() {
 	//INITIATE THE GAME BY PRESSING ENTER :
 	document.addEventListener('keypress', function(evnt) { if (evnt.keyCode == 13) gameState = 'INPLAY'; }, false);
 
+	//CHANGE THE SCREEN SIZE DEPENDING ON SCREEN DIMENSIONS :
+	
+	
 } //END OF INITIALIZATION ROUTINE....
 //=============================================================================================
 //=============================================================================================
@@ -166,8 +175,9 @@ function init() {
 function gameLoop() {
 	
 	clearCanvas(); //KEEP THE CANVAS CLEAN
+	window.onresize = changeScreenAspectRatio(); //MAKE SURE THE GAME PLAY ADAPTS TO DIFFERENT SCREEN SIZES.
+	
 	if (mainGameTimer >= 25000) mainGameTimer = 1; else mainGameTimer++; //Start and increment the timing counter....
-
 	
     if (gameState == 'READY') {
 		if (mainGameTimer%1500 == 0) screenDisplay = 'TITLE';  		
@@ -252,65 +262,112 @@ function gameTitle() {
 	//Go through random numbers until a certain time, then display the number that supposed to be there....
 	//Based on main game timer : Make it look like something off of the movie War Games.
 	randomNumber = Math.floor((Math.random()*9));	
-	if (mainGameTimer%225 == 0) { ctx.drawImage(titleNumberSprites[1], 20, 150); oneFound = true; }
-	else if (!oneFound) ctx.drawImage(titleNumberSprites[randomNumber], 20, 150); 
+	if (mainGameTimer%225 == 0) { 	
+		ctx.drawImage(titleNumberSprites[1],20*widthRatio,150*heightRatio,
+					  adjustSize(titleNumberSprites[1],'w'), adjustSize(titleNumberSprites[1],'h')); 	
+		oneFound = true; }
+		
+	else if (!oneFound) ctx.drawImage(titleNumberSprites[randomNumber], 20*widthRatio, 150*heightRatio,
+						adjustSize(titleNumberSprites[1],'w'), adjustSize(titleNumberSprites[1],'h')); 
+		
+	
+//..............................................................................................................
 
 	randomNumber = Math.floor((Math.random()*9));	
-	if (mainGameTimer%425 == 0) { ctx.drawImage(titleNumberSprites[9], 220, 150); nineFound = true; }
-	else if (!nineFound) ctx.drawImage(titleNumberSprites[randomNumber], 220, 150); 
+	if (mainGameTimer%425 == 0) { 	
+		ctx.drawImage(titleNumberSprites[9],220*widthRatio,150*heightRatio,
+					  adjustSize(titleNumberSprites[9],'w'), adjustSize(titleNumberSprites[9],'h')); 	
+		nineFound = true; }
+		
+	else if (!nineFound) ctx.drawImage(titleNumberSprites[randomNumber], 220*widthRatio, 150*heightRatio,
+						adjustSize(titleNumberSprites[9],'w'), adjustSize(titleNumberSprites[9],'h')); 
+
+//.........................................................................................................
+						
+	randomNumber = Math.floor((Math.random()*9));	
+	if (mainGameTimer%625 == 0) { 	
+		ctx.drawImage(titleNumberSprites[8],420*widthRatio,150*heightRatio,
+					  adjustSize(titleNumberSprites[8],'w'), adjustSize(titleNumberSprites[8],'h')); 	
+		eightFound = true; }
+		
+	else if (!eightFound) ctx.drawImage(titleNumberSprites[randomNumber], 420*widthRatio, 150*heightRatio,
+						adjustSize(titleNumberSprites[8],'w'), adjustSize(titleNumberSprites[8],'h')); 
+
+//.........................................................................................................
+
+	randomNumber = Math.floor((Math.random()*9));	
+	if (mainGameTimer%825 == 0) { 	
+		ctx.drawImage(titleNumberSprites[4],620*widthRatio,150*heightRatio,
+					  adjustSize(titleNumberSprites[4],'w'), adjustSize(titleNumberSprites[4],'h')); 	
+		fourFound = true; }
+		
+	else if (!fourFound) ctx.drawImage(titleNumberSprites[randomNumber], 620*widthRatio, 150*heightRatio,
+						adjustSize(titleNumberSprites[4],'w'), adjustSize(titleNumberSprites[4],'h')); 
+
+//.........................................................................................................
+						
+	if (oneFound) ctx.drawImage(titleNumberSprites[1], 20*widthRatio, 150*heightRatio,
+								adjustSize(titleNumberSprites[1],'w'), adjustSize(titleNumberSprites[4],'h'));		
 	
-	randomNumber = Math.floor((Math.random()*9));
-	if (mainGameTimer%625 == 0) { ctx.drawImage(titleNumberSprites[8], 420, 150); eightFound = true; }
-	else if (!eightFound) ctx.drawImage(titleNumberSprites[randomNumber], 420, 150); 
+	if (nineFound) ctx.drawImage(titleNumberSprites[9], 220*widthRatio, 150*heightRatio,
+								adjustSize(titleNumberSprites[9],'w'), adjustSize(titleNumberSprites[4],'h'));		
 	
-	randomNumber = Math.floor((Math.random()*9));
-	if (mainGameTimer%825 == 0) { ctx.drawImage(titleNumberSprites[4], 620, 150); fourFound = true; }
-	else if (!fourFound) ctx.drawImage(titleNumberSprites[randomNumber], 620, 150); 
 	
-	if (oneFound) ctx.drawImage(titleNumberSprites[1], 20, 150);
-	if (nineFound) ctx.drawImage(titleNumberSprites[9], 220, 150);
-	if (eightFound) ctx.drawImage(titleNumberSprites[8], 420, 150);
-	if (fourFound) ctx.drawImage(titleNumberSprites[4], 620, 150);
+	if (eightFound) ctx.drawImage(titleNumberSprites[8], 420*widthRatio, 150*heightRatio,
+								adjustSize(titleNumberSprites[8],'w'), adjustSize(titleNumberSprites[4],'h'));
+	
+	
+	if (fourFound) ctx.drawImage(titleNumberSprites[4], 620*widthRatio, 150*heightRatio,
+								adjustSize(titleNumberSprites[4],'w'), adjustSize(titleNumberSprites[4],'h'));	
 	
 	//SHOW THE PRESS START PROMPT AND THE FLASH IT.
 	if (oneFound && nineFound && eightFound && fourFound) { 
-			ctx.font='20px Tahoma';
+
+			fontAdjustedSize = Math.floor(20*fontSizeRatio);
+	
+			ctx.font= fontAdjustedSize+'px Tahoma';
 			
 			if (textFlash == 'on') { ctx.fillStyle = 'red'; } 
 			else { ctx.fillStyle = 'black'; }
 			
 			if (mainGameTimer%150 == 0) { if (textFlash == 'on') textFlash = 'off'; else textFlash = 'on'; }
 						
-			ctx.fillText("PRESS <ENTER>", 340, 450);
+			ctx.fillText("PRESS <ENTER>", 340*widthRatio, 450*heightRatio);
+			
 	} //End of if block....
 	
 } //End of function gameTitle.
 
 function gameHighScores() {
 
+
 	//Once control gets here, it has to reset the variables that animate the title screen :
 	oneFound = false; nineFound = false; eightFound = false; fourFound = false;
 
-	ctx.font='70px Tahoma Bold';
+	fontAdjustedSize = Math.floor(70*fontSizeRatio);
+		
+	ctx.font=fontAdjustedSize.toString()+'px Tahoma Bold';
 	ctx.fillStyle = 'blue';
-	ctx.fillText("TOP GUNNERS :", 140, 200);
+	ctx.fillText("TOP GUNNERS :", 140*widthRatio, 200*heightRatio);
 	
 	//SHOW THE TOP GUNNERS !!!!
 	for (var highScoreCounter = 0; highScoreCounter <= scoreHonorNameArray.length-1; highScoreCounter++) {
 	
-	  ctx.font='40px Tahoma Bold';
+	  fontAdjustedSize = Math.floor(40*fontSizeRatio);
+	  ctx.font=fontAdjustedSize+'px Tahoma Bold';
 	  ctx.fillStyle = 'green';
 	
-	  ctx.fillText(scoreHonorNameArray[highScoreCounter], 250, 270+(50*highScoreCounter));
-	  ctx.fillText(scoreHonorNumberArray[highScoreCounter], 450, 270+(50*highScoreCounter));
+	  ctx.fillText(scoreHonorNameArray[highScoreCounter], 250*widthRatio, (270+(50*highScoreCounter))*heightRatio);
+	  ctx.fillText(scoreHonorNumberArray[highScoreCounter], 450*widthRatio, (270+(50*highScoreCounter))*heightRatio);
 	
-	  ctx.font='20px Tahoma';
+	  fontAdjustedSize = Math.floor(20*fontSizeRatio);
+	  ctx.font=fontAdjustedSize+'px Tahoma';
 	  ctx.fillStyle = 'green';
 	  
-	  ctx.fillText("HIGH ", 340, 30);
+	  ctx.fillText("HIGH ", 340*widthRatio, 30*heightRatio);
 	  
 	  ctx.fillStyle = 'white';
-	  ctx.fillText(highScore, 400, 30);
+	  ctx.fillText(highScore, 400*widthRatio, 30*heightRatio);
 	
 	} //End of loop.
 	
@@ -319,12 +376,29 @@ function gameHighScores() {
 			
 			if (mainGameTimer%150 == 0) { if (textFlash == 'on') textFlash = 'off'; else textFlash = 'on'; }
 						
-			ctx.fillText("PRESS <ENTER>", 340, 550);
-	
+			ctx.fillText("PRESS <ENTER>", 340*widthRatio, 550*heightRatio);
 } //End of function gameHighScores.
 
 
+//GAME SHOULD ADJUST TO DIFFERENT SCREEN SIZES :
+function changeScreenAspectRatio() { 
+
+  //Calculate the height and width ratio so that adjustments can be made in the rest
+  //of the game
+  heightRatio = (window.innerHeight)/660;
+  widthRatio = (window.innerWidth)/1360;
+
+  ctx.canvas.height = heightRatio*height;
+  ctx.canvas.width = widthRatio*width;  
+  
+  fontSizeRatio = (ctx.canvas.height*ctx.canvas.width)/(height*width);
+ 
+} //End of changeScreenAspectRatio
+
+
+
 //Start the game as soon as the everything on the site is loaded.
+
 window.onload = init;
 </script>
 </head>

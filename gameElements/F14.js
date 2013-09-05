@@ -152,7 +152,8 @@ function f14Fighter() {
 			if ((animationTimingA%70) == 0) { if (axisCounter > 8) axisCounter--; else if (axisCounter < 8) axisCounter++; }
 			
 			if (gameState == 'INPLAY') { 
-				ctx.drawImage(F14Sprites[axisCounter], F14_x, F14_y);
+				ctx.drawImage(F14Sprites[axisCounter], F14_x*widthRatio, F14_y*heightRatio, 
+								adjustSize(F14Sprites[axisCounter],'w'), adjustSize(F14Sprites[axisCounter],'h'));
 				soundProcessor('REG');
 			} //End of if....
 			
@@ -168,7 +169,8 @@ function f14Fighter() {
 			
 			if (objectCounter != explosionSprites.length-1) objectCounter++;			
 			
-			ctx.drawImage(explosionSprites[objectCounter], F14_x, F14_y);
+			ctx.drawImage(explosionSprites[objectCounter], F14_x*widthRatio, F14_y*heightRatio,
+						adjustSize(explosionSprites[objectCounter],'w'), adjustSize(explosionSprites[objectCounter],'h'));
 
 		} //End of condition.
 
@@ -187,7 +189,8 @@ function f14Fighter() {
 			if (animationTimingA > 1200) { animationTimingA = 0; }
 			else animationTimingA++;		
 			
-			ctx.drawImage(F14Sprites[objectCounter], F14_x, F14_y);			
+			ctx.drawImage(F14Sprites[objectCounter], F14_x*widthRatio, F14_y*heightRatio,
+						adjustSize(F14Sprites[objectCounter],'w'), adjustSize(F14Sprites[objectCounter],'h'));			
 			
 
 		} //End of condition.		

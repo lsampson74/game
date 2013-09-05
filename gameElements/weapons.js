@@ -16,9 +16,6 @@ function weaponsObject() {
 		
 		enemyMissileStatus = 'ACTIVAT', // ACTIVAT = activated, SHOTOFF = shot off
 		
-/*		bulletImage = new Image(),
-		missileImage = new Image(),
-		missileImage2 = new Image(),*/
 		F14MissileSpeed = 5, //F14 Missile speed.
 		
 		//FOR ENEMY WEAPONS ONLY
@@ -34,8 +31,8 @@ function weaponsObject() {
 
 	//Launches the weapon based on type and location :
 	function launch(weaponType, numGuns, x, y) { 
-		type = weaponType; loc_x = x; loc_y = y; numberOfGuns = numGuns;
-		target_x = x; //NO TARGET UNTIL ENEMIES ARE SITED WHERE AS A "TARGET LOCK" CAN BE MADE.
+		type = weaponType; loc_x = x*widthRatio; loc_y = y*heightRatio; numberOfGuns = numGuns;
+		target_x = x*widthRatio;  //NO TARGET UNTIL ENEMIES ARE SITED WHERE AS A "TARGET LOCK" CAN BE MADE.
 		status = 'INUSE'; }
 
 	//Function definition
@@ -48,14 +45,26 @@ function weaponsObject() {
 			else loc_y -= bulletSpeed;	
 
 			if (numberOfGuns == 'SIN') {			
-				ctx.drawImage(F14BulletImage, loc_x+F14LeftBulletCalib, loc_y);			
-				ctx.drawImage(F14BulletImage, loc_x+F14RightBulletCalib, loc_y); }	//END OF CONDITION BLOCK
+				ctx.drawImage(F14BulletImage, (loc_x+F14LeftBulletCalib*widthRatio), loc_y,
+							adjustSize(F14BulletImage,'w'), adjustSize(F14BulletImage,'h'));
+				
+				ctx.drawImage(F14BulletImage, (loc_x+F14RightBulletCalib*widthRatio), loc_y,
+							adjustSize(F14BulletImage,'w'), adjustSize(F14BulletImage,'h')); 
+							
+			}	//END OF CONDITION BLOCK
 
 			else if (numberOfGuns == 'DOB') {
-				ctx.drawImage(F14BulletImage, loc_x+F14LeftBulletCalib+7, loc_y);			
-				ctx.drawImage(F14BulletImage, loc_x+F14RightBulletCalib, loc_y);
-				ctx.drawImage(F14BulletImage, loc_x+F14LeftBulletCalib, loc_y);			
-				ctx.drawImage(F14BulletImage, loc_x+F14RightBulletCalib-7, loc_y);
+				ctx.drawImage(F14BulletImage, (loc_x+(F14LeftBulletCalib+7)), loc_y,
+							adjustSize(F14BulletImage,'w'), adjustSize(F14BulletImage,'h'));
+				
+				ctx.drawImage(F14BulletImage, (loc_x+F14RightBulletCalib), loc_y,
+							adjustSize(F14BulletImage,'w'), adjustSize(F14BulletImage,'h'));				
+				
+				ctx.drawImage(F14BulletImage, (loc_x+F14LeftBulletCalib), loc_y,			
+							adjustSize(F14BulletImage,'w'), adjustSize(F14BulletImage,'h'));				
+				
+				ctx.drawImage(F14BulletImage, (loc_x+(F14RightBulletCalib-7)), loc_y,
+							adjustSize(F14Sprites[axisCounter],'w'), adjustSize(F14Sprites[axisCounter],'h'));				
 
 			}	//END OF CONDITION BLOCK.
 
@@ -114,9 +123,12 @@ function weaponsObject() {
 
 			} //END OF ELSE block.
 
-			if (missileFiringSide == 'L') { ctx.drawImage(F14MissileImage, loc_x+F14LeftBulletCalib, loc_y); }
+			if (missileFiringSide == 'L') { 
+				ctx.drawImage(F14MissileImage, (loc_x+F14LeftBulletCalib*widthRatio), loc_y,
+								adjustSize(F14MissileImage,'w'), adjustSize(F14MissileImage,'h')); }
 
-			else if (missileFiringSide == 'R') { ctx.drawImage(F14MissileImage, loc_x+F14RightBulletCalib, loc_y); }
+			else if (missileFiringSide == 'R') { ctx.drawImage(F14MissileImage, (loc_x+F14RightBulletCalib*widthRatio), loc_y,
+								adjustSize(F14MissileImage,'w'), adjustSize(F14MissileImage,'h'));	}
 
 
 		} //End of if block.
@@ -152,7 +164,7 @@ function weaponsObject() {
 		
 			ctx.translate(loc_x, loc_y);
 			ctx.rotate(radians);
-			ctx.drawImage(enemyMissileImage, 0, 0);		
+			ctx.drawImage(enemyMissileImage, 0, 0, adjustSize(enemyMissileImage,'w'), adjustSize(enemyMissileImage,'h'));		
 			
 			ctx.restore();
 			

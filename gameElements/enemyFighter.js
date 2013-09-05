@@ -246,9 +246,9 @@ function enemyFighter() {
 		xLoc += Math.cos(radians)*enemySpeed;
 		yLoc += Math.sin(radians)*enemySpeed;
 		
-		ctx.translate(xLoc, yLoc);
+		ctx.translate(xLoc*widthRatio, yLoc*heightRatio);
 		ctx.rotate(radians);
-		ctx.drawImage(enemyFighterImage, 0, 0);		
+		ctx.drawImage(enemyFighterImage, 0, 0, adjustSize(enemyFighterImage,'w'), adjustSize(enemyFighterImage,'h'));		
 			
 		ctx.restore();
 	
